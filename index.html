@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Expression Processor</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .math-display {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin: 1em 0;
+            padding: 1em;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .math-display .MathJax {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0.2em 0;
+        }
+        .math-display p {
+            margin: 0.5em 0;
+        }
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .data-table th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #2980b9;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e1e1e1;
+            color: #2c3e50;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background-color: #f1f7fb;
+        }
+        /* Style sections based on their content with distinct color schemes */
+        .content-section:has(strong:contains('Math Standard:')) {
+            border-left: 4px solid #3498db;
+            background-color: #ebf8ff;
+        }
+        .content-section:has(strong:contains('Standard Description:')) {
+            border-left: 4px solid #2ecc71;
+            background-color: #f0fff4;
+        }
+        .content-section:has(strong:contains('Problem:')) {
+            border-left: 4px solid #e74c3c;
+            background-color: #fff5f5;
+        }
+        .content-section:has(strong:contains('Synthesis:')) {
+            border-left: 4px solid #f39c12;
+            background-color: #fffaf0;
+        }
+        .content-section:has(strong:contains('Reflection Question:')) {
+            border-left: 4px solid #9b59b6;
+            background-color: #faf5ff;
+        }
+        /* Default styling for other sections - will cycle through colors */
+        .content-section:nth-of-type(5n+1):not(:has(strong[class="section-header"])) {
+            border-left: 4px solid #00bcd4;
+            background-color: #e0f7fa;
+        }
+        .content-section:nth-of-type(5n+2):not(:has(strong[class="section-header"])) {
+            border-left: 4px solid #4caf50;
+            background-color: #e8f5e9;
+        }
+        .content-section:nth-of-type(5n+3):not(:has(strong[class="section-header"])) {
+            border-left: 4px solid #ff9800;
+            background-color: #fff3e0;
+        }
+        .content-section:nth-of-type(5n+4):not(:has(strong[class="section-header"])) {
+            border-left: 4px solid #e91e63;
+            background-color: #fce4ec;
+        }
+        .content-section:nth-of-type(5n+5):not(:has(strong[class="section-header"])) {
+            border-left: 4px solid #673ab7;
+            background-color: #ede7f6;
+        }
+        .section-header {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 0.5em;
+            color: #2c3e50;
+        }
+        .list-number {
+            font-weight: bold;
+            color: #000000;
+            margin-right: 0.5em;
+        }
+        hr.my-4 {
+            border: 0;
+            height: 1px;
+            background: #e0e0e0;
+            margin: 2em 0;
+        }
+        em {
+            font-style: italic;
+            color: #444;
+        }
+        u {
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-decoration-color: #3498db;
+        }
+        /* Hover effects for sections */
+        .content-section:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Math Expression Processor</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="mb-4">
+                <label for="inputText" class="block text-gray-700 font-medium mb-2">Input Text:</label>
+                <textarea id="inputText" class="w-full h-48 p-3 border rounded-lg" placeholder="Enter your text here (e.g., '1/2 ÷ 1/4' or '2 miles per 3 hours')..."></textarea>
+            </div>
+            
+            <button id="processButton" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                Process Text
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Processed Text:</h2>
+            <div id="processedText" class="math-display whitespace-pre-wrap"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html> 

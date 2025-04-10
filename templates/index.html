@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Processor</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                packages: {'[+]': ['amsmath', 'base', 'physics']}
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'math-display'
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        console.log('MathJax is ready');
+                        // Initial typeset after page load
+                        MathJax.typesetPromise();
+                    });
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .text-area {
+            width: 100%;
+            min-height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: monospace;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .mode-selector {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .output-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .math-display {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin: 1em 0;
+            padding: 1em;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .math-display .MathJax {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0.2em 0;
+        }
+        .math-display p {
+            margin: 0.5em 0;
+        }
+        .standard {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5em;
+        }
+        .question {
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 1em 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Processor</h1>
+        <div class="mode-selector">
+            <label for="inputMode">Input Mode:</label>
+            <select id="inputMode">
+                <option value="html">HTML Input</option>
+                <option value="text">Plain Text</option>
+            </select>
+        </div>
+        <div class="label">Input Text:</div>
+        <textarea id="inputText" class="text-area" placeholder="Enter your text here..."></textarea>
+        <button onclick="processText()">Process Text</button>
+        <div class="label">Processed Output:</div>
+        <div id="outputText" class="output-container">
+            <div class="mt-4 p-4 bg-white rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-2">Processed Text:</h3>
+                <div id="processedText" class="math-display whitespace-pre-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function processText() {
+            const inputText = document.getElementById('inputText').value;
+            const outputText = document.getElementById('outputText');
+            const inputMode = document.getElementById('inputMode').value;
+            
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        text: inputText,
+                        mode: inputMode
+                    })
+                });
+                
+                const data = await response.json();
+                updateProcessedText(data.result);
+            } catch (error) {
+                outputText.innerHTML = 'Error processing text: ' + error.message;
+            }
+        }
+
+        function updateProcessedText(text) {
+            const processedTextDiv = document.getElementById('processedText');
+            
+            // Clear any existing MathJax processing
+            if (window.MathJax) {
+                MathJax.typesetClear();
+            }
+            
+            // Process the text to add proper HTML structure
+            const processedHTML = text
+                .split('\n\n')
+                .map(paragraph => {
+                    if (paragraph.startsWith('**')) {
+                        return `<p class="standard">${paragraph.replace(/\*\*/g, '')}</p>`;
+                    } else if (paragraph.startsWith('**Reflection Question:**')) {
+                        return `<p class="question">${paragraph.replace('**Reflection Question:**', '')}</p>`;
+                    } else {
+                        return `<p>${paragraph}</p>`;
+                    }
+                })
+                .join('');
+            
+            processedTextDiv.innerHTML = processedHTML;
+            
+            // Process the new content
+            MathJax.typesetPromise([processedTextDiv]).then(() => {
+                console.log('MathJax rendering complete');
+            }).catch((err) => {
+                console.error('MathJax rendering error:', err);
+                // Fallback display if MathJax fails
+                processedTextDiv.innerHTML = text.replace(/\$/g, '');
+            });
+        }
+    </script>
+</body>
+</html> 
